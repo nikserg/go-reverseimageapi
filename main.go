@@ -2,6 +2,7 @@ package reverseimageapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -9,8 +10,8 @@ import (
 type ReverseImageApiAnswerResult struct {
 	Url    string `json:"url"`
 	Image  string `json:"image"`
-	Height string `json:"height"`
-	Width  string `json:"width"`
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
 	Title  string `json:"title"`
 }
 type ReverseImageApiAnswer struct {
@@ -24,16 +25,18 @@ func Search(apiKey string, imageUrl string) (ReverseImageApiAnswer, error) {
 	urlForSearch += apiKey
 	urlForSearch += "&url="
 	urlForSearch += url.QueryEscape(imageUrl)
-	
+
 	response, err := http.Get(urlForSearch)
 	if err != nil {
-		return ReverseImageApiAnswer{},err
+		return ReverseImageApiAnswer{}, err
 	}
-	
+	defer response.Body.Close()
+
 	answer := ReverseImageApiAnswer{}
 	err = json.NewDecoder(response.Body).Decode(&answer)
+	fmt.Println(answer)
 	if err != nil {
-		return ReverseImageApiAnswer{},err
+		return ReverseImageApiAnswer{}, err
 	}
-	return answer,nil
+	return answer, nil
 }
